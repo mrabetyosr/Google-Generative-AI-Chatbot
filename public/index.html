@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="icon" href="https://i.ibb.co/F57MGN0/ai-1.png" type="image/png">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <img src="https://i.ibb.co/F57MGN0/ai-1.png" alt="Chatbot Logo">
+    </div>
+
+    <!-- Chat Container -->
+    <div id="chatContainer" class="chat-container"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <input type="text" id="text" placeholder="Ask me anything" autocomplete="off" required>
+      <input type="file" id="fileInput" style="display: none;" accept="image/*">
+      <button id="attachment">
+          <i class="fas fa-paperclip"></i>
+      </button>
+      <button id="send">
+        <i class="fas fa-location-arrow"></i>
+      </button>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

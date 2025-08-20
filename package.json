@@ -1,0 +1,29 @@
+{
+  "name": "google-generative-ai-chatbot",
+  "version": "1.0.0",
+  "description": "Create a Chatbot with Node.js, Express & Google Generative AI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrabetyosr/Google-Generative-AI-Chatbot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrabetyosr/Google-Generative-AI-Chatbot/issues"
+  },
+  "homepage": "https://github.com/mrabetyosr/Google-Generative-AI-Chatbot#readme",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "body-parser": "^2.2.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "node-fetch": "^2.7.0",
+    "path": "^0.12.7"
+  }
+}
