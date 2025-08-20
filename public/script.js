@@ -104,9 +104,247 @@ function attachEventListeners() {
     // Store selected file
     fileInput.addEventListener("change", (event) => {
         selectedFile = event.target.files[0];
-        appendMessage("user", `Selected File: ${selectedFile.name}`);
+        if (selectedFile) {
+            appendMessage("user", `Selected File: ${selectedFile.name}`);
+        }
     });
 }
 
+// ===========================================
+// GESTION DU THÈME JOUR/NUIT
+// ===========================================
+
+// Gestion du thème jour/nuit
+class ThemeManager {
+    constructor() {
+        // Essayer de récupérer le thème depuis localStorage, sinon utiliser 'dark' par défaut
+        this.currentTheme = this.getStoredTheme() || 'dark';
+        this.init();
+    }
+
+    init() {
+        // Appliquer le thème sauvegardé
+        this.applyTheme(this.currentTheme);
+        
+        // Ajouter l'écouteur d'événement au bouton
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => this.toggleTheme());
+        }
+    }
+
+    getStoredTheme() {
+        try {
+            return localStorage.getItem('chatbot-theme');
+        } catch (e) {
+            // En cas d'erreur avec localStorage, retourner null
+            console.warn('Unable to access localStorage:', e);
+            return null;
+        }
+    }
+
+    setStoredTheme(theme) {
+        try {
+            localStorage.setItem('chatbot-theme', theme);
+        } catch (e) {
+            // En cas d'erreur avec localStorage, continuer sans sauvegarder
+            console.warn('Unable to save theme to localStorage:', e);
+        }
+    }
+
+    applyTheme(theme) {
+        const body = document.body;
+        
+        if (theme === 'light') {
+            body.setAttribute('data-theme', 'light');
+        } else {
+            body.removeAttribute('data-theme');
+            theme = 'dark'; // S'assurer que le thème est bien 'dark'
+        }
+        
+        this.currentTheme = theme;
+        
+        // Sauvegarder le thème
+        this.setStoredTheme(theme);
+        
+        // Animation de transition douce
+        body.style.transition = 'all 0.3s ease';
+        setTimeout(() => {
+            body.style.transition = '';
+        }, 300);
+    }
+
+    toggleTheme() {
+        const newTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+        this.applyTheme(newTheme);
+        
+        // Effet visuel sur le bouton
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.style.transform = 'translateY(-50%) scale(0.9)';
+            themeToggle.style.transition = 'transform 0.15s ease';
+            
+            setTimeout(() => {
+                themeToggle.style.transform = 'translateY(-50%) scale(1)';
+                setTimeout(() => {
+                    themeToggle.style.transition = '';
+                }, 150);
+            }, 150);
+        }
+        
+        // Optionnel: ajouter une animation de confirmation
+        this.showThemeChangeNotification(newTheme);
+    }
+
+    showThemeChangeNotification(theme) {
+        // Créer une petite notification temporaire
+        const notification = document.createElement('div');
+        notification.innerHTML = theme === 'light' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--model-msg-bg);
+            color: var(--model-msg-text);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            border: 1px solid var(--model-msg-border);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animation d'apparition
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // Animation de disparition
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 2000);
+    }
+
+    getCurrentTheme() {
+        return this.currentTheme;
+    }
+
+    // Méthode pour forcer un thème spécifique
+    setTheme(theme) {
+        if (theme === 'light' || theme === 'dark') {
+            this.applyTheme(theme);
+        }
+    }
+}
+
+// Variable globale pour le gestionnaire de thème
+let themeManager;
+
+// Fonction utilitaire pour changer le thème depuis l'extérieur
+function setTheme(theme) {
+    if (themeManager) {
+        themeManager.setTheme(theme);
+    }
+}
+
+// Fonction pour obtenir le thème actuel
+function getCurrentTheme() {
+    return themeManager ? themeManager.getCurrentTheme() : 'dark';
+}
+
+// Fonction pour basculer le thème
+function toggleTheme() {
+    if (themeManager) {
+        themeManager.toggleTheme();
+    }
+}
+
+// ===========================================
+// INITIALISATION DE L'APPLICATION
+// ===========================================
+
 // Initialize the chat application when the DOM is fully loaded
-document.addEventListener("DOMContentLoaded", attachEventListeners);
+document.addEventListener("DOMContentLoaded", function() {
+    // Initialiser les écouteurs d'événements du chat
+    attachEventListeners();
+    
+    // Initialiser le gestionnaire de thème
+    themeManager = new ThemeManager();
+    
+    // Message de bienvenue optionnel
+    setTimeout(() => {
+        appendMessage("model", "👋 Hello! I'm your AI assistant. How can I help you today?");
+    }, 500);
+});
+
+// ===========================================
+// FONCTIONS UTILITAIRES SUPPLÉMENTAIRES
+// ===========================================
+
+// Fonction pour effacer la conversation
+function clearChat() {
+    const chatContainer = document.getElementById("chatContainer");
+    if (chatContainer) {
+        chatContainer.innerHTML = "";
+        messageCount = 0;
+    }
+}
+
+// Fonction pour sauvegarder la conversation
+function saveChat() {
+    const chatContainer = document.getElementById("chatContainer");
+    if (chatContainer) {
+        const chatContent = chatContainer.innerHTML;
+        const blob = new Blob([chatContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chat-${new Date().toISOString().slice(0, 10)}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+}
+
+// Gestion des raccourcis clavier
+document.addEventListener('keydown', function(event) {
+    // Ctrl/Cmd + K pour effacer le chat
+    if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        if (confirm('Are you sure you want to clear the conversation?')) {
+            clearChat();
+        }
+    }
+    
+    // Ctrl/Cmd + D pour basculer le thème
+    if ((event.ctrlKey || event.metaKey) && event.key === 'd') {
+        event.preventDefault();
+        toggleTheme();
+    }
+});
+
+// Gestionnaire d'erreurs global
+window.addEventListener('error', function(event) {
+    console.error('JavaScript Error:', event.error);
+});
+
+// Optimisation des performances - débounce pour le scroll
+let scrollTimeout;
+function optimizedScrollToBottom() {
+    if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+    }
+    scrollTimeout = setTimeout(scrollToBottom, 10);
+}
